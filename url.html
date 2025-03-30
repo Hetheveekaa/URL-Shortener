@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            color: black;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .short-urls {
+            list-style: none;
+            padding: 0;
+        }
+        .short-urls li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .short-urls a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .short-urls a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>URL Shortener</h2>
+        <input type="text" id="longUrl" placeholder="Enter long URL">
+        <button onclick="shortenUrl()">Shorten URL</button>
+        <ul class="short-urls" id="shortUrlList"></ul>
+    </div>
+
+    <script>
+        let urls = JSON.parse(localStorage.getItem("urls")) || {};
+
+        function generateShortCode() {
+            return Math.random().toString(36).substring(2, 8);
+        }
+
+        function shortenUrl() {
+            const longUrl = document.getElementById("longUrl").value;
+            if (!longUrl) return alert("Enter a valid URL");
+            
+            const shortCode = generateShortCode();
+            urls[shortCode] = { longUrl, visits: 0 };
+            localStorage.setItem("urls", JSON.stringify(urls));
+            updateUI();
+        }
+
+        function redirectToUrl(shortCode) {
+            if (urls[shortCode]) {
+                urls[shortCode].visits++;
+                localStorage.setItem("urls", JSON.stringify(urls));
+                window.location.href = urls[shortCode].longUrl;
+            } else {
+                alert("Invalid Short URL");
+            }
+        }
+
+        function updateUI() {
+            const list = document.getElementById("shortUrlList");
+            list.innerHTML = "";
+            for (let shortCode in urls) {
+                const li = document.createElement("li");
+                li.innerHTML = `<a href="#" onclick="redirectToUrl('${shortCode}')">short.ly/${shortCode}</a> - ${urls[shortCode].visits} visits`;
+                list.appendChild(li);
+            }
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
